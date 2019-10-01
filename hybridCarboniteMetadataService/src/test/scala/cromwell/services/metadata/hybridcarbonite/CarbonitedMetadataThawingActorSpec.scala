@@ -9,7 +9,7 @@ import common.validation.Validation._
 import cromwell.core.io.IoContentAsStringCommand
 import cromwell.core.io.IoPromiseProxyActor.IoCommandWithPromise
 import cromwell.core.{RootWorkflowId, TestKitSuite}
-import cromwell.services.metadata.MetadataService.{GetLabels, LabelLookupResponse}
+import cromwell.services.metadata.MetadataService.{GetRootAndSubworkflowLabels, RootAndSubworkflowLookupResponse}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActor.{ThawCarboniteFailed, ThawCarboniteSucceeded, ThawCarbonitedMetadata}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActorSpec._
 import io.circe.parser._
@@ -44,8 +44,8 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
 
     clientProbe.send(actorUnderTest, ThawCarbonitedMetadata(workflowId))
 
-    serviceRegistryActor.expectMsg(GetLabels(workflowId))
-    serviceRegistryActor.send(actorUnderTest, LabelLookupResponse(workflowId, Map("bob loblaw" -> "law blog")))
+    serviceRegistryActor.expectMsg(GetRootAndSubworkflowLabels(workflowId))
+    serviceRegistryActor.send(actorUnderTest, RootAndSubworkflowLookupResponse(workflowId, Map(workflowId -> Map("bob loblaw" -> "law blog"))))
 
     ioActor.expectMsgPF(max = 5.seconds) {
       case command @ IoCommandWithPromise(iocasc: IoContentAsStringCommand, _) if iocasc.file.pathAsString.contains(workflowId.toString) =>

@@ -93,7 +93,7 @@ object JsonEditor {
     val rootWorkflowId = json.rootWorkflowId.get
     // This better exist, throw if it doesn't.
 
-    val (rootLabels: Map[WorkflowId, Map[String, String]], _) = labels.partition { case (id, _) => id == rootWorkflowId }
+    val (rootLabels: Map[WorkflowId, Map[String, String]], _) = labels.partition { case (id, _) => id.toString == rootWorkflowId.toString }
     val newRootLabelsData: Json = Json.fromFields(rootLabels.head._2.safeMapValues(Json.fromString))
     val newRootLabelsObject: Json = Json.fromFields(List(("labels", newRootLabelsData)))
 
