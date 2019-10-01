@@ -66,7 +66,7 @@ class JsonEditorSpec extends FlatSpec with Matchers{
   }
 
   it should "add labels" in {
-    val newJson = realJson.map(augmentLabels(_, Map(("new","label")))).right.get
+    val newJson = realJson.map(j => updateLabels(j, Map(j.rootWorkflowId.get -> Map(("new","label"))))).right.get
     val newLabels = newJson.hcursor.downField("labels").keys.get
     assert(newLabels.size  === 2)
   }

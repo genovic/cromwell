@@ -2,6 +2,7 @@ package cromwell.util
 
 import cats.data.NonEmptyList
 import common.collections.EnhancedCollections._
+import cromwell.core.WorkflowId
 import io.circe.{Json, JsonNumber, JsonObject}
 import mouse.all._
 import io.circe.Json.Folder
@@ -48,7 +49,7 @@ object JsonEditor {
             }
         }
         val jsonObject = Json.fromJsonObject(JsonObject.fromIterable(modified))
-        val keep = modified.size > 0
+        val keep = modified.nonEmpty
         (jsonObject, keep)
       }
     }
@@ -72,20 +73,32 @@ object JsonEditor {
 
   def logs(json: Json): Json = includeJson(json, NonEmptyList.of("stdout", "stderr", "backendLogs", "id"))
 
+  implicit class EnhancedJson(val json: Json) extends AnyVal {
+    def rootWorkflowId: Option[WorkflowId] = {
+      for {
+        o <- json.asObject
+        id <- o.kleisli("id")
+        s <- id.asString
+      } yield WorkflowId.fromString(s)
+    }
+  }
   /**
-    * We only return labels associated with top-level workflows.  Subworkflows don't include labels (as of 7/26/19).
-    *
-    * Thus this method puts the labels as a top-level field.
+    * In-memory upsert of labels into the base Json, handling root and sub workflows appropriately.
     *
     * @param json json blob with or without "labels" field
-    * @param labels a map of labels one would like to apply to a workflow json
+    * @param labels a map of workflow IDs to maps of labels one would like to apply to a workflow json
     * @return json with labels merged in.  Any prior non-object "labels" field will be overwritten and any object fields will be merged together and - again - any existing values overwritten.
     */
-  def augmentLabels(json: Json, labels: Map[String, String]): Json = {
-    val newData: Json = Json.fromFields(labels.safeMapValues(Json.fromString))
-    val newObj: Json = Json.fromFields(List(("labels", newData)))
-    //in the event of a key clash, the values in "newObj" will be favored over "json"
-    json deepMerge newObj
+  def updateLabels(json: Json, labels: Map[WorkflowId, Map[String, String]]): Json = {
+    val rootWorkflowId = json.rootWorkflowId.get
+    // This better exist, throw if it doesn't.
+
+    val (rootLabels: Map[WorkflowId, Map[String, String]], _) = labels.partition { case (id, _) => id == rootWorkflowId }
+    val newRootLabelsData: Json = Json.fromFields(rootLabels.head._2.safeMapValues(Json.fromString))
+    val newRootLabelsObject: Json = Json.fromFields(List(("labels", newRootLabelsData)))
+
+    //in the event of a key clash, the values in "newRootLabelsObject" will be favored over "json"
+    json deepMerge newRootLabelsObject
   }
 
   def removeSubworkflowData(json: Json): Json = excludeJson(json, NonEmptyList.of("subWorkflowMetadata"))

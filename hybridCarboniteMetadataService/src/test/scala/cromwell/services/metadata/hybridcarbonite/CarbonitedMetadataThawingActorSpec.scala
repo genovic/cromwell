@@ -8,12 +8,12 @@ import com.typesafe.config.ConfigFactory
 import common.validation.Validation._
 import cromwell.core.io.IoContentAsStringCommand
 import cromwell.core.io.IoPromiseProxyActor.IoCommandWithPromise
-import cromwell.core.{TestKitSuite, WorkflowId}
+import cromwell.core.{RootWorkflowId, TestKitSuite}
 import cromwell.services.metadata.MetadataService.{GetLabels, LabelLookupResponse}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActor.{ThawCarboniteFailed, ThawCarboniteSucceeded, ThawCarbonitedMetadata}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActorSpec._
-import org.scalatest.{FlatSpecLike, Matchers}
 import io.circe.parser._
+import org.scalatest.{FlatSpecLike, Matchers}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -60,7 +60,7 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
 }
 
 object CarbonitedMetadataThawingActorSpec {
-  val workflowId = WorkflowId(UUID.fromString("2ce544a0-4c0d-4cc9-8a0b-b412bb1e5f82"))
+  val workflowId = RootWorkflowId(UUID.fromString("2ce544a0-4c0d-4cc9-8a0b-b412bb1e5f82"))
 
   val rawMetadataSample = sampleMetadataContent("")
   val augmentedMetadataSample = sampleMetadataContent("""
