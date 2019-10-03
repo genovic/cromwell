@@ -59,31 +59,61 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
     }
   }
 
-  it should "parse a metadata with subworkflows" in {
+  it should "update a metadata with subworkflows" in {
     import io.circe._
     import io.circe.parser._
     val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
 
-    def parseWorkflow(workflowJson: Json): HCursor = {
-      val cursor = workflowJson.hcursor
-
-      val id: String = cursor.get[String]("id").getOrElse(throw new RuntimeException(s"did not find workflow id in $metadataWithSubworkflows"))
+    def updateWorkflow(workflowJson: Json): Json = {
+      val id: String = (for {
+        obj <- workflowJson.asObject
+        idJson <- obj.kleisli("id")
+        wfid <- idJson.asString
+      } yield wfid).getOrElse(throw new RuntimeException(s"did not find workflow id in $metadataWithSubworkflows"))
       println(s"found workflow id $id")
+
+      val callsObject: Option[JsonObject] = for {
+        obj <- workflowJson.asObject
+        callsJson <- obj.kleisli("calls")
+        calls <- callsJson.asObject
+      } yield calls
+
+      val wfWithUpdatedCalls = callsObject match {
+        // it would be weird if there wasn't but might be possible
+        case None => workflowJson
+        case Some(calls) =>
+          val callsArray = calls.mapValues {
+            ca =>
+              // The calls value is a Json Array so the result of these mapValues machinations should be another Json Array.
+              val callArray: Vector[Json] = ca.asArray.get
+              callArray map { callJson =>
+                // If the callJson contains a subworkflowMetadata key, return a copy of the callJson with the
+                // value of corresponding to that subworkflowMetadata key updated.
+                val subJson: Option[JsonObject] = for {
+                  co <- callJson.asObject
+                  sub <- co("subworkflowMetadata")
+                  subObj <- sub.asObject
+                } yield subObj
+
+                subJson match {
+                  case None => callJson
+                  case Some(c) =>
+                    Json.fromJsonObject(c.add("subworkflowMetadata", updateWorkflow(callJson)))
+                }
+              }
+              Json.fromValues(callArray)
+          }
+          Json.fromJsonObject(workflowJson.asObject.get.add("calls", Json.fromJsonObject(callsArray)))
+      }
+
       // placeholder for experimentation, jam in a reversed id for now just to prove it works
       val databaseLabels = Json.fromFields(Map("reversed" -> Json.fromString(id.reverse)))
 
-      val updatedLabelsJson = workflowJson deepMerge databaseLabels
-
-      val topCursor = updatedLabelsJson.hcursor
-      // A workflow without any calls?
-      if (updatedLabelsJson.asObject.exists(_.contains("calls")) {
-        topCursor.downField("calls").downArray.withFocus()
-      } else {
-        topCursor
-      }
+      wfWithUpdatedCalls deepMerge databaseLabels
     }
 
-    parseWorkflow(doc).top.get
+    val x = updateWorkflow(doc)
+    x
   }
 }
 
