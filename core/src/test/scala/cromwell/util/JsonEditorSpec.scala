@@ -112,62 +112,7 @@ class JsonEditorSpec extends FlatSpec with Matchers{
     import io.circe.parser._
     val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
 
-    def updateWorkflow(workflowJson: Json): Json = {
-
-      val id: String = (for {
-        obj <- workflowJson.asObject
-        idJson <- obj("id")
-        wfid <- idJson.asString
-      } yield wfid).getOrElse(throw new RuntimeException(s"did not find workflow id in $metadataWithSubworkflows"))
-      println(s"found workflow id $id")
-
-      val subWorkflowMetadataKey = "subWorkflowMetadata"
-
-      val callsObject: Option[JsonObject] = for {
-        wo <- workflowJson.asObject
-        callsJson <- wo("calls")
-        co <- callsJson.asObject
-      } yield co
-
-      val workflowWithUpdatedCalls: Json = callsObject match {
-        // If there were no calls just return the workflow JSON unmodified.
-        case None => workflowJson
-        case Some(calls) =>
-          val updatedCallsObject = calls.mapValues {
-            // The Json (a JSON array, really) corresponding to the array of call objects for a call name.
-            callValue: Json =>
-              // The object above converted to a List[Json].
-              val callArray: List[Json] = callValue.asArray.toList flatMap { _.toList }
-
-              val updatedCallArray = callArray map { callJson =>
-                // If there is no subworkflow object this will be None.
-                val callAndSubworkflowObjects: Option[(JsonObject, JsonObject)] = for {
-                  co <- callJson.asObject
-                  sub <- co(subWorkflowMetadataKey)
-                  so <- sub.asObject
-                } yield (co, so)
-
-                callAndSubworkflowObjects match {
-                  case None => callJson
-                  case Some((callObject, subworkflowObject)) =>
-                    // If the call contains a subWorkflowMetadata key, return a copy of the call with
-                    // its subworkflowMetadata updated.
-                    val updatedSubworkflow = updateWorkflow(Json.fromJsonObject(subworkflowObject))
-                    Json.fromJsonObject(callObject.add(subWorkflowMetadataKey, updatedSubworkflow))
-                }
-              }
-              Json.fromValues(updatedCallArray)
-          }
-          Json.fromJsonObject(workflowJson.asObject.get.add("calls", Json.fromJsonObject(updatedCallsObject)))
-      }
-
-      // placeholder for experimentation, jam in the id now just to prove it works
-      val databaseLabels = Json.fromFields(Map("id_anew" -> Json.fromString(id)))
-
-      workflowWithUpdatedCalls deepMerge databaseLabels
-    }
-
-    val updated = updateWorkflow(doc)
+    val updated = updateWorkflow(doc, Map.empty)
     System.err.println(updated.pretty(Printer.spaces2))
   }
 
