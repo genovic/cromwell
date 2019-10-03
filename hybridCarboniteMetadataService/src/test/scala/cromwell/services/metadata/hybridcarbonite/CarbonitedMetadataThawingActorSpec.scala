@@ -87,18 +87,19 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
               // The calls value is a Json Array so the result of these mapValues machinations should be another Json Array.
               val callArray: Vector[Json] = callValue.asArray.get
               val updatedCallArray = callArray map { callJson =>
+                val subWorkflowMetadataKey = "subWorkflowMetadata"
                 val subwf = for {
                   co <- callJson.asObject
-                  sub <- co("subworkflowMetadata")
+                  sub <- co(subWorkflowMetadataKey)
                   so <- sub.asObject
                 } yield (co, so)
 
                 subwf match {
                   case None => callJson
                   case Some((c, s)) =>
-                    // If the call contains a subworkflowMetadata key, return a copy of the call with an
+                    // If the call contains a subWorkflowMetadata key, return a copy of the call with
                     // its subworkflowMetadata updated.
-                    Json.fromJsonObject(c.add("subworkflowMetadata", updateWorkflow(Json.fromJsonObject(s))))
+                    Json.fromJsonObject(c.add(subWorkflowMetadataKey, updateWorkflow(Json.fromJsonObject(s))))
                 }
               }
               Json.fromValues(updatedCallArray)
