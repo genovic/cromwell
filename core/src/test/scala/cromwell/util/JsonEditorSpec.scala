@@ -7,6 +7,8 @@ import io.circe.parser._
 import org.scalatest.{FlatSpec, Matchers}
 import cats.syntax.either._
 
+import scala.io.Source
+
 class JsonEditorSpec extends FlatSpec with Matchers{
   import JsonEditorSpec._
 
@@ -74,7 +76,7 @@ class JsonEditorSpec extends FlatSpec with Matchers{
   it should "remove subworkflow info" in {
     val sub = subWorkflowJson.map(removeSubworkflowData).right.get
     val keys = sub.hcursor.downField("calls").downField("sub_workflow_interactions.countEvens").downArray.keys
-    assert(keys.contains("subWorkflowMetadata") === false)
+    assert(keys.exists(_.exists(_ == "subWorkflowMetadata")) === false)
   }
 
   def removeDeepNested(json: Json): Json = excludeJson(json, NonEmptyList.of("deep"))
@@ -104,6 +106,71 @@ class JsonEditorSpec extends FlatSpec with Matchers{
     assert(keys_nested2.get.toSet.contains("keepme") === true) // simple nested key "deep" removed
     assert(keys_nested2.get.size === 1) // simple nested key "deep" removed
   }
+
+  it should "update a metadata with subworkflows" in {
+    import io.circe._
+    import io.circe.parser._
+    val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
+
+    def updateWorkflow(workflowJson: Json): Json = {
+
+      val id: String = (for {
+        obj <- workflowJson.asObject
+        idJson <- obj("id")
+        wfid <- idJson.asString
+      } yield wfid).getOrElse(throw new RuntimeException(s"did not find workflow id in $metadataWithSubworkflows"))
+      println(s"found workflow id $id")
+
+      val subWorkflowMetadataKey = "subWorkflowMetadata"
+
+      val callsObject: Option[JsonObject] = for {
+        wo <- workflowJson.asObject
+        callsJson <- wo("calls")
+        co <- callsJson.asObject
+      } yield co
+
+      val workflowWithUpdatedCalls: Json = callsObject match {
+        // If there were no calls just return the workflow JSON unmodified.
+        case None => workflowJson
+        case Some(calls) =>
+          val updatedCallsObject = calls.mapValues {
+            // The Json (a JSON array, really) corresponding to the array of call objects for a call name.
+            callValue: Json =>
+              // The object above converted to a List[Json].
+              val callArray: List[Json] = callValue.asArray.toList flatMap { _.toList }
+
+              val updatedCallArray = callArray map { callJson =>
+                // If there is no subworkflow object this will be None.
+                val callAndSubworkflowObjects: Option[(JsonObject, JsonObject)] = for {
+                  co <- callJson.asObject
+                  sub <- co(subWorkflowMetadataKey)
+                  so <- sub.asObject
+                } yield (co, so)
+
+                callAndSubworkflowObjects match {
+                  case None => callJson
+                  case Some((callObject, subworkflowObject)) =>
+                    // If the call contains a subWorkflowMetadata key, return a copy of the call with
+                    // its subworkflowMetadata updated.
+                    val updatedSubworkflow = updateWorkflow(Json.fromJsonObject(subworkflowObject))
+                    Json.fromJsonObject(callObject.add(subWorkflowMetadataKey, updatedSubworkflow))
+                }
+              }
+              Json.fromValues(updatedCallArray)
+          }
+          Json.fromJsonObject(workflowJson.asObject.get.add("calls", Json.fromJsonObject(updatedCallsObject)))
+      }
+
+      // placeholder for experimentation, jam in the id now just to prove it works
+      val databaseLabels = Json.fromFields(Map("id_anew" -> Json.fromString(id)))
+
+      workflowWithUpdatedCalls deepMerge databaseLabels
+    }
+
+    val updated = updateWorkflow(doc)
+    System.err.println(updated.pretty(Printer.spaces2))
+  }
+
 }
 
 object JsonEditorSpec {
@@ -604,4 +671,5 @@ object JsonEditorSpec {
 
   val subWorkflowJson: Either[ParsingFailure, Json] = parse(metadataWithSubWorkflowMetadata)
 
+  val metadataWithSubworkflows = Source.fromInputStream(Thread.currentThread.getContextClassLoader.getResourceAsStream("metadata_with_subworkflow.json")).mkString
 }
