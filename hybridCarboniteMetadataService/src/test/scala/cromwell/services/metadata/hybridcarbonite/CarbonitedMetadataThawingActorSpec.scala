@@ -17,6 +17,7 @@ import org.scalatest.{FlatSpecLike, Matchers}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+import scala.io.Source
 
 class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadataThawingActorSpec") with FlatSpecLike with Matchers {
 
@@ -56,6 +57,33 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
       case ThawCarboniteSucceeded(str) => parse(str) should be(parse(augmentedMetadataSample))
       case ThawCarboniteFailed(reason) => fail(reason)
     }
+  }
+
+  it should "parse a metadata with subworkflows" in {
+    import io.circe._
+    import io.circe.parser._
+    val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
+
+    def parseWorkflow(workflowJson: Json): HCursor = {
+      val cursor = workflowJson.hcursor
+
+      val id: String = cursor.get[String]("id").getOrElse(throw new RuntimeException(s"did not find workflow id in $metadataWithSubworkflows"))
+      println(s"found workflow id $id")
+      // placeholder for experimentation, jam in a reversed id for now just to prove it works
+      val databaseLabels = Json.fromFields(Map("reversed" -> Json.fromString(id.reverse)))
+
+      val updatedLabelsJson = workflowJson deepMerge databaseLabels
+
+      val topCursor = updatedLabelsJson.hcursor
+      // A workflow without any calls?
+      if (updatedLabelsJson.asObject.exists(_.contains("calls")) {
+        topCursor.downField("calls").downArray.withFocus()
+      } else {
+        topCursor
+      }
+    }
+
+    parseWorkflow(doc).top.get
   }
 }
 
@@ -199,4 +227,6 @@ object CarbonitedMetadataThawingActorSpec {
                                                         |  "end": "2019-07-31T20:19:35.057Z",
                                                         |  "start": "2019-07-31T20:19:02.228Z"
                                                         |}""".stripMargin
+
+  val metadataWithSubworkflows = Source.fromInputStream(Thread.currentThread.getContextClassLoader.getResourceAsStream("metadata_with_subworkflow.json")).mkString
 }
