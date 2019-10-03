@@ -79,31 +79,31 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
       } yield calls
 
       val wfWithUpdatedCalls = callsObject match {
-        // it would be weird if there wasn't but might be possible
+        // If there were no calls just return the workflow JSON unmodified.
         case None => workflowJson
         case Some(calls) =>
-          val callsArray = calls.mapValues {
-            ca =>
+          val updatedCallsObject = calls.mapValues {
+            callValue =>
               // The calls value is a Json Array so the result of these mapValues machinations should be another Json Array.
-              val callArray: Vector[Json] = ca.asArray.get
-              callArray map { callJson =>
-                // If the callJson contains a subworkflowMetadata key, return a copy of the callJson with the
-                // value of corresponding to that subworkflowMetadata key updated.
-                val subJson: Option[JsonObject] = for {
+              val callArray: Vector[Json] = callValue.asArray.get
+              val updatedCallArray = callArray map { callJson =>
+                val subwf = for {
                   co <- callJson.asObject
                   sub <- co("subworkflowMetadata")
-                  subObj <- sub.asObject
-                } yield subObj
+                  so <- sub.asObject
+                } yield (co, so)
 
-                subJson match {
+                subwf match {
                   case None => callJson
-                  case Some(c) =>
-                    Json.fromJsonObject(c.add("subworkflowMetadata", updateWorkflow(callJson)))
+                  case Some((c, s)) =>
+                    // If the call contains a subworkflowMetadata key, return a copy of the call with an
+                    // its subworkflowMetadata updated.
+                    Json.fromJsonObject(c.add("subworkflowMetadata", updateWorkflow(Json.fromJsonObject(s))))
                 }
               }
-              Json.fromValues(callArray)
+              Json.fromValues(updatedCallArray)
           }
-          Json.fromJsonObject(workflowJson.asObject.get.add("calls", Json.fromJsonObject(callsArray)))
+          Json.fromJsonObject(workflowJson.asObject.get.add("calls", Json.fromJsonObject(updatedCallsObject)))
       }
 
       // placeholder for experimentation, jam in a reversed id for now just to prove it works
