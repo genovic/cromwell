@@ -90,8 +90,10 @@ object JsonEditor {
     * @return json with labels merged in.  Any prior non-object "labels" field will be overwritten and any object fields will be merged together and - again - any existing values overwritten.
     */
   def updateLabels(json: Json, labels: Map[WorkflowId, Map[String, String]]): Json = {
-    val rootWorkflowId = json.rootWorkflowId.get
-    // This better exist, throw if it doesn't.
+    val rootWorkflowId = json.rootWorkflowId match {
+      case None => throw new RuntimeException("Workflow id not found at outermost level of workflow JSON")
+      case Some(id) => id
+    }
 
     val (rootLabels: Map[WorkflowId, Map[String, String]], _) = labels.partition { case (id, _) => id.toString == rootWorkflowId.toString }
     val newRootLabelsData: Json = Json.fromFields(rootLabels.head._2.safeMapValues(Json.fromString))

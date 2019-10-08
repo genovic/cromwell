@@ -325,11 +325,15 @@ class MetadataSlickDatabase(originalDatabaseConfig: Config)
 
   override def getRootAndSubworkflowLabels(rootWorkflowExecutionUuid: String)(implicit ec: ExecutionContext): Future[Map[String, Map[String, String]]] = {
     val action = dataAccess.labelsForWorkflowAndSubworkflows(rootWorkflowExecutionUuid).result
+    // An empty Map of String workflow IDs to a Map of String label keys to String label values.
+    // The outer Map has a default value so any request for a workflow ID that is not
+    // already in the outer Map will return an empty label key/value inner Map.
+    val zero: Map[String, Map[String, String]] = Map.empty.withDefaultValue(Map.empty)
+
     runTransaction(action) map { seq =>
-      val zero: Map[String, Map[String, String]] = Map.empty.withDefaultValue(Map.empty)
-      seq.foldLeft(zero) { case (acc, (id, k, v)) =>
-        val labels = acc(id)
-        acc + (id -> (labels + (k -> v)))
+      seq.foldLeft(zero) { case (labels, (id, labelKey, labelValue)) =>
+        val labelsForId = labels(id)
+        labels + (id -> (labelsForId + (labelKey -> labelValue)))
       }
     }
   }

@@ -70,12 +70,12 @@ class ReadDatabaseMetadataWorkerActor(metadataReadTimeout: Duration) extends Act
     }
   }
 
-  private def queryRootAndSubworkflowLabelsAndRespond(id: RootWorkflowId): Future[MetadataServiceResponse] = {
+  private def queryRootAndSubworkflowLabelsAndRespond(rootWorkflowId: RootWorkflowId): Future[MetadataServiceResponse] = {
 
-    getRootAndSubworkflowLabels(id) map {
-      ls => RootAndSubworkflowLookupResponse(id, ls)
+    getRootAndSubworkflowLabels(rootWorkflowId) map {
+      labels => RootAndSubworkflowLookupResponse(rootWorkflowId, labels)
     } recover {
-      case t => RootAndSubworkflowLookupFailed(id, t)
+      case t => RootAndSubworkflowLookupFailed(rootWorkflowId, t)
     }
   }
 
