@@ -8,7 +8,7 @@ import com.typesafe.config.ConfigFactory
 import common.validation.Validation._
 import cromwell.core.io.IoContentAsStringCommand
 import cromwell.core.io.IoPromiseProxyActor.IoCommandWithPromise
-import cromwell.core.{RootWorkflowId, TestKitSuite}
+import cromwell.core.{RootWorkflowId, TestKitSuite, WorkflowId}
 import cromwell.services.metadata.MetadataService.{GetRootAndSubworkflowLabels, RootAndSubworkflowLabelsLookupResponse}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActor.{ThawCarboniteFailed, ThawCarboniteSucceeded, ThawCarbonitedMetadata}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActorSpec._
@@ -45,7 +45,7 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
     clientProbe.send(actorUnderTest, ThawCarbonitedMetadata(workflowId))
 
     serviceRegistryActor.expectMsg(GetRootAndSubworkflowLabels(workflowId))
-    serviceRegistryActor.send(actorUnderTest, RootAndSubworkflowLabelsLookupResponse(workflowId, Map(workflowId -> Map("bob loblaw" -> "law blog"))))
+    serviceRegistryActor.send(actorUnderTest, RootAndSubworkflowLabelsLookupResponse(workflowId, Map(WorkflowId(workflowId.id) -> Map("bob loblaw" -> "law blog"))))
 
     ioActor.expectMsgPF(max = 5.seconds) {
       case command @ IoCommandWithPromise(iocasc: IoContentAsStringCommand, _) if iocasc.file.pathAsString.contains(workflowId.toString) =>

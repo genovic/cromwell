@@ -1,0 +1,402 @@
+{
+  "workflowName": "wf",
+  "rootWorkflowId": "08a271dd-76d0-493b-bfcd-fae2e526ab0d",
+  "calls": {
+    "wf.wf": [
+      {
+        "executionStatus": "Done",
+        "subWorkflowMetadata": {
+          "workflowName": "wf",
+          "rootWorkflowId": "08a271dd-76d0-493b-bfcd-fae2e526ab0d",
+          "calls": {
+            "wf.foo": [
+              {
+                "executionStatus": "Done",
+                "stdout": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-0/sub_sub_sub.wf/df5a1bac-b098-4d51-a5dc-0370b17ec5ff/call-foo/shard-0/execution/stdout",
+                "shardIndex": 0,
+                "outputs": {},
+                "runtimeAttributes": {
+                  "maxRetries": "0",
+                  "failOnStderr": "false",
+                  "continueOnReturnCode": "0"
+                },
+                "callCaching": {
+                  "allowResultReuse": true,
+                  "hit": true,
+                  "result": "Cache Hit: 36dc5a9c-d437-44b3-854c-46cde4b9cc33:wf.foo:2",
+                  "hashes": {
+                    "output count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "runtime attribute": {
+                      "docker": "N/A",
+                      "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+                      "failOnStderr": "68934A3E9455FA72420237EB05902327"
+                    },
+                    "input count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "backend name": "509820290D57F333403F490DDE7316F4",
+                    "command template": "28AC999D4F0514B0944A1EC46613714E"
+                  },
+                  "effectiveCallCachingMode": "ReadAndWriteCache"
+                },
+                "inputs": {},
+                "returnCode": 0,
+                "backend": "Local",
+                "end": "2019-10-08T22:39:43.294Z",
+                "stderr": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-0/sub_sub_sub.wf/df5a1bac-b098-4d51-a5dc-0370b17ec5ff/call-foo/shard-0/execution/stderr",
+                "callRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-0/sub_sub_sub.wf/df5a1bac-b098-4d51-a5dc-0370b17ec5ff/call-foo/shard-0",
+                "attempt": 1,
+                "executionEvents": [
+                  {
+                    "startTime": "2019-10-08T22:39:39.751Z",
+                    "description": "PreparingJob",
+                    "endTime": "2019-10-08T22:39:39.849Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:40.205Z",
+                    "description": "UpdatingCallCache",
+                    "endTime": "2019-10-08T22:39:42.394Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:42.394Z",
+                    "description": "UpdatingJobStore",
+                    "endTime": "2019-10-08T22:39:43.295Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.288Z",
+                    "description": "RequestingExecutionToken",
+                    "endTime": "2019-10-08T22:39:39.750Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.750Z",
+                    "description": "WaitingForValueStore",
+                    "endTime": "2019-10-08T22:39:39.751Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.283Z",
+                    "description": "Pending",
+                    "endTime": "2019-10-08T22:39:39.288Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.849Z",
+                    "description": "CallCacheReading",
+                    "endTime": "2019-10-08T22:39:40.205Z"
+                  }
+                ],
+                "start": "2019-10-08T22:39:39.277Z"
+              },
+              {
+                "executionStatus": "Done",
+                "stdout": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-0/sub_sub_sub.wf/df5a1bac-b098-4d51-a5dc-0370b17ec5ff/call-foo/shard-1/execution/stdout",
+                "shardIndex": 1,
+                "outputs": {},
+                "runtimeAttributes": {
+                  "maxRetries": "0",
+                  "failOnStderr": "false",
+                  "continueOnReturnCode": "0"
+                },
+                "callCaching": {
+                  "allowResultReuse": true,
+                  "hit": true,
+                  "result": "Cache Hit: 36dc5a9c-d437-44b3-854c-46cde4b9cc33:wf.foo:2",
+                  "hashes": {
+                    "output count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "runtime attribute": {
+                      "docker": "N/A",
+                      "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+                      "failOnStderr": "68934A3E9455FA72420237EB05902327"
+                    },
+                    "input count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "backend name": "509820290D57F333403F490DDE7316F4",
+                    "command template": "28AC999D4F0514B0944A1EC46613714E"
+                  },
+                  "effectiveCallCachingMode": "ReadAndWriteCache"
+                },
+                "inputs": {},
+                "returnCode": 0,
+                "backend": "Local",
+                "end": "2019-10-08T22:39:43.293Z",
+                "stderr": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-0/sub_sub_sub.wf/df5a1bac-b098-4d51-a5dc-0370b17ec5ff/call-foo/shard-1/execution/stderr",
+                "callRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-0/sub_sub_sub.wf/df5a1bac-b098-4d51-a5dc-0370b17ec5ff/call-foo/shard-1",
+                "attempt": 1,
+                "executionEvents": [
+                  {
+                    "startTime": "2019-10-08T22:39:40.221Z",
+                    "description": "UpdatingCallCache",
+                    "endTime": "2019-10-08T22:39:42.394Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.977Z",
+                    "description": "CallCacheReading",
+                    "endTime": "2019-10-08T22:39:40.221Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:42.394Z",
+                    "description": "UpdatingJobStore",
+                    "endTime": "2019-10-08T22:39:43.295Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.751Z",
+                    "description": "PreparingJob",
+                    "endTime": "2019-10-08T22:39:39.977Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.288Z",
+                    "description": "RequestingExecutionToken",
+                    "endTime": "2019-10-08T22:39:39.748Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.283Z",
+                    "description": "Pending",
+                    "endTime": "2019-10-08T22:39:39.288Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.748Z",
+                    "description": "WaitingForValueStore",
+                    "endTime": "2019-10-08T22:39:39.751Z"
+                  }
+                ],
+                "start": "2019-10-08T22:39:39.279Z"
+              }
+            ]
+          },
+          "outputs": {},
+          "workflowRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d",
+          "id": "df5a1bac-b098-4d51-a5dc-0370b17ec5ff",
+          "inputs": {},
+          "status": "Succeeded",
+          "parentWorkflowId": "66ee7e69-233c-4156-a158-2a577c539192",
+          "end": "2019-10-08T22:39:44.377Z",
+          "start": "2019-10-08T22:39:36.194Z"
+        },
+        "shardIndex": 0,
+        "outputs": {},
+        "inputs": {},
+        "end": "2019-10-08T22:39:44.380Z",
+        "attempt": 1,
+        "executionEvents": [
+          {
+            "startTime": "2019-10-08T22:39:36.193Z",
+            "description": "WaitingForValueStore",
+            "endTime": "2019-10-08T22:39:36.194Z"
+          },
+          {
+            "startTime": "2019-10-08T22:39:36.194Z",
+            "description": "SubWorkflowPreparingState",
+            "endTime": "2019-10-08T22:39:36.208Z"
+          },
+          {
+            "startTime": "2019-10-08T22:39:36.208Z",
+            "description": "SubWorkflowRunningState",
+            "endTime": "2019-10-08T22:39:44.377Z"
+          },
+          {
+            "startTime": "2019-10-08T22:39:36.193Z",
+            "description": "SubWorkflowPendingState",
+            "endTime": "2019-10-08T22:39:36.193Z"
+          }
+        ],
+        "start": "2019-10-08T22:39:36.193Z"
+      },
+      {
+        "executionStatus": "Done",
+        "subWorkflowMetadata": {
+          "workflowName": "wf",
+          "rootWorkflowId": "08a271dd-76d0-493b-bfcd-fae2e526ab0d",
+          "calls": {
+            "wf.foo": [
+              {
+                "executionStatus": "Done",
+                "stdout": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-1/sub_sub_sub.wf/9fd9c87e-18aa-4f75-9431-09c2af2d2f78/call-foo/shard-0/execution/stdout",
+                "shardIndex": 0,
+                "outputs": {},
+                "runtimeAttributes": {
+                  "maxRetries": "0",
+                  "failOnStderr": "false",
+                  "continueOnReturnCode": "0"
+                },
+                "callCaching": {
+                  "allowResultReuse": true,
+                  "hit": true,
+                  "result": "Cache Hit: 36dc5a9c-d437-44b3-854c-46cde4b9cc33:wf.foo:2",
+                  "hashes": {
+                    "output count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "runtime attribute": {
+                      "docker": "N/A",
+                      "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+                      "failOnStderr": "68934A3E9455FA72420237EB05902327"
+                    },
+                    "input count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "backend name": "509820290D57F333403F490DDE7316F4",
+                    "command template": "28AC999D4F0514B0944A1EC46613714E"
+                  },
+                  "effectiveCallCachingMode": "ReadAndWriteCache"
+                },
+                "inputs": {},
+                "returnCode": 0,
+                "backend": "Local",
+                "end": "2019-10-08T22:39:43.292Z",
+                "stderr": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-1/sub_sub_sub.wf/9fd9c87e-18aa-4f75-9431-09c2af2d2f78/call-foo/shard-0/execution/stderr",
+                "callRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-1/sub_sub_sub.wf/9fd9c87e-18aa-4f75-9431-09c2af2d2f78/call-foo/shard-0",
+                "attempt": 1,
+                "executionEvents": [
+                  {
+                    "startTime": "2019-10-08T22:39:40.205Z",
+                    "description": "UpdatingCallCache",
+                    "endTime": "2019-10-08T22:39:42.394Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.288Z",
+                    "description": "RequestingExecutionToken",
+                    "endTime": "2019-10-08T22:39:39.747Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.751Z",
+                    "description": "PreparingJob",
+                    "endTime": "2019-10-08T22:39:39.826Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.826Z",
+                    "description": "CallCacheReading",
+                    "endTime": "2019-10-08T22:39:40.205Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:42.394Z",
+                    "description": "UpdatingJobStore",
+                    "endTime": "2019-10-08T22:39:43.295Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.283Z",
+                    "description": "Pending",
+                    "endTime": "2019-10-08T22:39:39.288Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.747Z",
+                    "description": "WaitingForValueStore",
+                    "endTime": "2019-10-08T22:39:39.751Z"
+                  }
+                ],
+                "start": "2019-10-08T22:39:39.277Z"
+              },
+              {
+                "executionStatus": "Done",
+                "stdout": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-1/sub_sub_sub.wf/9fd9c87e-18aa-4f75-9431-09c2af2d2f78/call-foo/shard-1/execution/stdout",
+                "shardIndex": 1,
+                "outputs": {},
+                "runtimeAttributes": {
+                  "maxRetries": "0",
+                  "failOnStderr": "false",
+                  "continueOnReturnCode": "0"
+                },
+                "callCaching": {
+                  "allowResultReuse": true,
+                  "hit": true,
+                  "result": "Cache Hit: 36dc5a9c-d437-44b3-854c-46cde4b9cc33:wf.foo:2",
+                  "hashes": {
+                    "output count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "runtime attribute": {
+                      "docker": "N/A",
+                      "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+                      "failOnStderr": "68934A3E9455FA72420237EB05902327"
+                    },
+                    "input count": "CFCD208495D565EF66E7DFF9F98764DA",
+                    "backend name": "509820290D57F333403F490DDE7316F4",
+                    "command template": "28AC999D4F0514B0944A1EC46613714E"
+                  },
+                  "effectiveCallCachingMode": "ReadAndWriteCache"
+                },
+                "inputs": {},
+                "returnCode": 0,
+                "backend": "Local",
+                "end": "2019-10-08T22:39:43.293Z",
+                "stderr": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-1/sub_sub_sub.wf/9fd9c87e-18aa-4f75-9431-09c2af2d2f78/call-foo/shard-1/execution/stderr",
+                "callRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d/call-wf/shard-1/sub.wf/459c6e2e-44a6-4940-908a-9b8712bd265d/call-wf/shard-0/sub_sub.wf/66ee7e69-233c-4156-a158-2a577c539192/call-wf/shard-1/sub_sub_sub.wf/9fd9c87e-18aa-4f75-9431-09c2af2d2f78/call-foo/shard-1",
+                "attempt": 1,
+                "executionEvents": [
+                  {
+                    "startTime": "2019-10-08T22:39:39.751Z",
+                    "description": "PreparingJob",
+                    "endTime": "2019-10-08T22:39:39.893Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:42.394Z",
+                    "description": "UpdatingJobStore",
+                    "endTime": "2019-10-08T22:39:43.295Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.747Z",
+                    "description": "WaitingForValueStore",
+                    "endTime": "2019-10-08T22:39:39.751Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:40.205Z",
+                    "description": "UpdatingCallCache",
+                    "endTime": "2019-10-08T22:39:42.394Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.893Z",
+                    "description": "CallCacheReading",
+                    "endTime": "2019-10-08T22:39:40.205Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.288Z",
+                    "description": "RequestingExecutionToken",
+                    "endTime": "2019-10-08T22:39:39.747Z"
+                  },
+                  {
+                    "startTime": "2019-10-08T22:39:39.283Z",
+                    "description": "Pending",
+                    "endTime": "2019-10-08T22:39:39.288Z"
+                  }
+                ],
+                "start": "2019-10-08T22:39:39.279Z"
+              }
+            ]
+          },
+          "outputs": {},
+          "workflowRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d",
+          "id": "9fd9c87e-18aa-4f75-9431-09c2af2d2f78",
+          "inputs": {},
+          "status": "Succeeded",
+          "parentWorkflowId": "66ee7e69-233c-4156-a158-2a577c539192",
+          "end": "2019-10-08T22:39:44.377Z",
+          "start": "2019-10-08T22:39:36.194Z"
+        },
+        "shardIndex": 1,
+        "outputs": {},
+        "inputs": {},
+        "end": "2019-10-08T22:39:44.379Z",
+        "attempt": 1,
+        "executionEvents": [
+          {
+            "startTime": "2019-10-08T22:39:36.192Z",
+            "description": "SubWorkflowPendingState",
+            "endTime": "2019-10-08T22:39:36.193Z"
+          },
+          {
+            "startTime": "2019-10-08T22:39:36.193Z",
+            "description": "WaitingForValueStore",
+            "endTime": "2019-10-08T22:39:36.194Z"
+          },
+          {
+            "startTime": "2019-10-08T22:39:36.194Z",
+            "description": "SubWorkflowPreparingState",
+            "endTime": "2019-10-08T22:39:36.209Z"
+          },
+          {
+            "startTime": "2019-10-08T22:39:36.209Z",
+            "description": "SubWorkflowRunningState",
+            "endTime": "2019-10-08T22:39:44.377Z"
+          }
+        ],
+        "start": "2019-10-08T22:39:36.192Z"
+      }
+    ]
+  },
+  "outputs": {},
+  "workflowRoot": "/home/jamie/gitrepos/cromwell/cromwell-executions/wf/08a271dd-76d0-493b-bfcd-fae2e526ab0d",
+  "id": "66ee7e69-233c-4156-a158-2a577c539192",
+  "inputs": {},
+  "status": "Succeeded",
+  "parentWorkflowId": "459c6e2e-44a6-4940-908a-9b8712bd265d",
+  "end": "2019-10-08T22:39:46.398Z",
+  "start": "2019-10-08T22:39:33.125Z"
+}
