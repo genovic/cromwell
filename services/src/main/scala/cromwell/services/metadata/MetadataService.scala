@@ -139,8 +139,8 @@ object MetadataService {
   final case class LabelLookupResponse(workflowId: WorkflowId, labels: Map[String, String]) extends MetadataServiceResponse
   final case class LabelLookupFailed(workflowId: WorkflowId, reason: Throwable) extends MetadataServiceFailure
 
-  final case class RootAndSubworkflowLookupResponse(rootWorkflowId: RootWorkflowId, labels: Map[WorkflowId, Map[String, String]]) extends MetadataServiceResponse
-  final case class RootAndSubworkflowLookupFailed(rootWorkflowId: RootWorkflowId, reason: Throwable) extends MetadataServiceFailure
+  final case class RootAndSubworkflowLabelsLookupResponse(rootWorkflowId: RootWorkflowId, labels: Map[WorkflowId, Map[String, String]]) extends MetadataServiceResponse
+  final case class RootAndSubworkflowLabelsLookupFailed(rootWorkflowId: RootWorkflowId, reason: Throwable) extends MetadataServiceFailure
 
   final case class WorkflowOutputsResponse(id: WorkflowId, outputs: Seq[MetadataEvent]) extends MetadataServiceResponse
   final case class WorkflowOutputsFailure(id: WorkflowId, reason: Throwable) extends MetadataServiceFailure

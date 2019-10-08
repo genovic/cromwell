@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, LoggingFSM, Props, Status}
 import akka.pattern.pipe
 import cromwell.core.io.{AsyncIo, DefaultIoCommandBuilder}
 import cromwell.core.{RootWorkflowId, WorkflowId}
-import cromwell.services.metadata.MetadataService.{GetRootAndSubworkflowLabels, RootAndSubworkflowLookupFailed, RootAndSubworkflowLookupResponse}
+import cromwell.services.metadata.MetadataService.{GetRootAndSubworkflowLabels, RootAndSubworkflowLabelsLookupFailed, RootAndSubworkflowLabelsLookupResponse}
 import cromwell.services.metadata.hybridcarbonite.CarbonitedMetadataThawingActor._
 import cromwell.util.JsonEditor
 import io.circe.parser._
@@ -44,10 +44,10 @@ final class CarbonitedMetadataThawingActor(carboniterConfig: HybridCarboniteConf
       requester ! ThawCarboniteSucceeded(mergeResponses(response, labels))
       stop()
 
-    case Event(RootAndSubworkflowLookupResponse(_, labels), CarbonitedMetadataThawingActorDataNothingYet(requester)) =>
+    case Event(RootAndSubworkflowLabelsLookupResponse(_, labels), CarbonitedMetadataThawingActorDataNothingYet(requester)) =>
       stay() using CarbonitedMetadataThawingActorDataWithLabels(requester, labels)
 
-    case Event(RootAndSubworkflowLookupResponse(_, labels), CarbonitedMetadataThawingActorDataWithGcsResponse(requester, gcsResponse)) =>
+    case Event(RootAndSubworkflowLabelsLookupResponse(_, labels), CarbonitedMetadataThawingActorDataWithGcsResponse(requester, gcsResponse)) =>
       requester ! ThawCarboniteSucceeded(mergeResponses(gcsResponse, labels))
       stop()
 
@@ -55,7 +55,7 @@ final class CarbonitedMetadataThawingActor(carboniterConfig: HybridCarboniteConf
     case Event(Status.Failure(failure), data: CarbonitedMetadataThawingActorWorkingData) =>
       data.requester ! ThawCarboniteFailed(failure)
       stop()
-    case Event(RootAndSubworkflowLookupFailed(_, failure), data: CarbonitedMetadataThawingActorWorkingData) =>
+    case Event(RootAndSubworkflowLabelsLookupFailed(_, failure), data: CarbonitedMetadataThawingActorWorkingData) =>
       data.requester ! ThawCarboniteFailed(failure)
       stop()
   }
