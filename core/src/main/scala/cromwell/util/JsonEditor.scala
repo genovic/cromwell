@@ -82,30 +82,18 @@ object JsonEditor {
       } yield WorkflowId.fromString(s)
     }
   }
+
+  def removeSubworkflowData(json: Json): Json = excludeJson(json, NonEmptyList.of("subWorkflowMetadata"))
+
   /**
     * In-memory upsert of labels into the base Json, handling root and sub workflows appropriately.
     *
     * @param json json blob with or without "labels" field
-    * @param labels a map of workflow IDs to maps of labels one would like to apply to a workflow json
+    * @param databaseLabels a map of workflow IDs to maps of labels one would like to apply to a workflow json
     * @return json with labels merged in.  Any prior non-object "labels" field will be overwritten and any object fields will be merged together and - again - any existing values overwritten.
     */
-  def updateLabels(json: Json, labels: Map[WorkflowId, Map[String, String]]): Json = {
-    val rootWorkflowId = json.rootWorkflowId match {
-      case None => throw new RuntimeException("Workflow id not found at outermost level of workflow JSON")
-      case Some(id) => id
-    }
-
-    val (rootLabels: Map[WorkflowId, Map[String, String]], _) = labels.partition { case (id, _) => id.toString == rootWorkflowId.toString }
-    val newRootLabelsData: Json = Json.fromFields(rootLabels.head._2.safeMapValues(Json.fromString))
-    val newRootLabelsObject: Json = Json.fromFields(List(("labels", newRootLabelsData)))
-
-    //in the event of a key clash, the values in "newRootLabelsObject" will be favored over "json"
-    json deepMerge newRootLabelsObject
-  }
-
-  def removeSubworkflowData(json: Json): Json = excludeJson(json, NonEmptyList.of("subWorkflowMetadata"))
-
-  def updateWorkflow(j: Json, databaseLabels: Map[WorkflowId, Map[String, String]]): Json = {
+  def updateLabels(json: Json, databaseLabels: Map[WorkflowId, Map[String, String]]): Json = {
+    val subWorkflowMetadataKey = "subWorkflowMetadata"
 
     def doUpdateWorkflow(workflowJson: Json): Json = {
       val id: String = (for {
@@ -113,10 +101,8 @@ object JsonEditor {
         idJson <- obj("id")
         wfid <- idJson.asString
       } yield wfid).getOrElse(throw new RuntimeException(s"did not find workflow id in ${workflowJson.printWith(Printer.spaces2)}"))
-      println(s"found workflow id $id")
 
-      val subWorkflowMetadataKey = "subWorkflowMetadata"
-
+      // Look for an optional JsonObject keyed by "calls".
       val callsObject: Option[JsonObject] = for {
         wo <- workflowJson.asObject
         callsJson <- wo("calls")
@@ -145,7 +131,7 @@ object JsonEditor {
                   case None => callJson
                   case Some((callObject, subworkflowObject)) =>
                     // If the call contains a subWorkflowMetadata key, return a copy of the call with
-                    // its subworkflowMetadata updated.
+                    // its subworkflowMetadata updated via a recursive call to `doUpdateWorkflow`.
                     val updatedSubworkflow = doUpdateWorkflow(Json.fromJsonObject(subworkflowObject))
                     Json.fromJsonObject(callObject.add(subWorkflowMetadataKey, updatedSubworkflow))
                 }
@@ -163,6 +149,6 @@ object JsonEditor {
       }
     }
 
-    doUpdateWorkflow(workflowJson = j)
+    doUpdateWorkflow(workflowJson = json)
   }
 }

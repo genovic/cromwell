@@ -68,7 +68,7 @@ class JsonEditorSpec extends FlatSpec with Matchers{
   }
 
   it should "add labels" in {
-    val newJson = realJson.map(j => updateLabels(j, Map(j.rootWorkflowId.get -> Map(("new","label"))))).right.get
+    val newJson = realJson.map(json => updateLabels(json, Map(json.rootWorkflowId.get -> Map(("new","label"))))).right.get
     val newLabels = newJson.hcursor.downField("labels").keys.get
     assert(newLabels.size  === 2)
   }
@@ -112,7 +112,7 @@ class JsonEditorSpec extends FlatSpec with Matchers{
     import io.circe.parser._
     val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
 
-    val updated = updateWorkflow(doc, Map.empty)
+    val updated = updateLabels(doc, Map.empty)
     System.err.println(updated.printWith(Printer.spaces2))
   }
 
