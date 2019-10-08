@@ -110,7 +110,7 @@ object JsonEditor {
         obj <- workflowJson.asObject
         idJson <- obj("id")
         wfid <- idJson.asString
-      } yield wfid).getOrElse(throw new RuntimeException(s"did not find workflow id in ${workflowJson.pretty(Printer.spaces2)}"))
+      } yield wfid).getOrElse(throw new RuntimeException(s"did not find workflow id in ${workflowJson.printWith(Printer.spaces2)}"))
       println(s"found workflow id $id")
 
       val subWorkflowMetadataKey = "subWorkflowMetadata"

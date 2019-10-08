@@ -113,7 +113,7 @@ class JsonEditorSpec extends FlatSpec with Matchers{
     val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
 
     val updated = updateWorkflow(doc, Map.empty)
-    System.err.println(updated.pretty(Printer.spaces2))
+    System.err.println(updated.printWith(Printer.spaces2))
   }
 
 }
