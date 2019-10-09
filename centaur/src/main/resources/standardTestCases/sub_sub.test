@@ -2,7 +2,7 @@
 name: sub_sub
 testFormat: workflowsuccess
 tags: [subworkflow]
-# ignore: true
+ignore: true
 
 files {
   workflow: sub_sub/top.wdl
