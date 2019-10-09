@@ -15,8 +15,7 @@ import scala.concurrent.duration._
 class RootAndSubworkflowLabelsSpec extends FlatSpec with Matchers with ScalaFutures {
   implicit val ec = ExecutionContext.global
 
-  // DatabaseSystem.All foreach { databaseSystem =>
-  List(HsqldbDatabaseSystem) foreach { databaseSystem =>
+  DatabaseSystem.All foreach { databaseSystem =>
     behavior of s"MetadataSlickDatabase on ${databaseSystem.name}"
 
     lazy val database: MetadataSlickDatabase with TestSlickDatabase = DatabaseTestKit.initializedDatabaseFromSystem(MetadataDatabaseType, databaseSystem)
@@ -62,7 +61,7 @@ class RootAndSubworkflowLabelsSpec extends FlatSpec with Matchers with ScalaFutu
       CustomLabelEntry(customLabelKey = "key", customLabelValue = uuid, workflowExecutionUuid = uuid)
     }
 
-    it should "query root and subworkflow labels correctly" in {
+    it should "query root and subworkflow labels correctly" taggedAs DbmsTest in {
       database.getRootAndSubworkflowLabels("root").
         futureValue(Timeout(10.seconds)) shouldBe(Map(
         "root" -> Map("key" -> "root"),
