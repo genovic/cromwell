@@ -22,6 +22,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.io.Source
 import scala.language.postfixOps
+import scala.collection.JavaConverters._
+
 
 class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadataThawingActorSpec") with FlatSpecLike with Matchers {
 
@@ -64,9 +66,10 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
   }
 
   it should "add labels to subworkflows" in {
-    // The root workflow ID followed by the subworkflow IDs in the order they appear in the metadata JSON.
-    val workflowIds = List(
-      "e0c918bb-695e-458a-ab37-be33db7bf721",
+
+    val rootWorkflowId = RootWorkflowId(UUID.fromString("e0c918bb-695e-458a-ab37-be33db7bf721"))
+    // The subworkflow IDs in the order they appear in the metadata JSON.
+    val subWorkflowIds = List(
       "be186a2f-b52c-4c6d-96dd-b9a7f16ac526",
       "9e1a2146-f48a-4c04-a589-d66a50dde39b",
       "ba56c1ab-02e0-45f2-97cf-5f91a9138a31",
@@ -80,21 +83,37 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
       "55383be2-9a7a-4004-8623-f1cf5a539433",
       "ffa835a7-68de-4c9d-a777-89f3f7b286dc",
       "0571a73e-1485-4b28-9320-e87036685d61",
-      "d9ce3320-727f-42f5-a946-e11177ebd7dd")
+      "d9ce3320-727f-42f5-a946-e11177ebd7dd") map WorkflowId.fromString
 
-    val labels: Map[WorkflowId, Map[String, String]] = workflowIds map WorkflowId.fromString map { id => id -> Map("short_id" -> id.shortString) } toMap
+    // The root workflow ID has to be a WorkflowId and not a RootWorkflowId in this Map.
+    val labelsForUpdate: Map[WorkflowId, Map[String, String]] = (WorkflowId.fromString(rootWorkflowId.toString) :: subWorkflowIds) map { id => id -> Map("short_id" -> id.shortString) } toMap
 
     val clientProbe = TestProbe()
-
     val actorUnderTest = TestActorRef(new CarbonitedMetadataThawingActor(carboniterConfig, serviceRegistryActor.ref, ioActor.ref), "ThawingActor")
-
-    val rootWorkflowId = RootWorkflowId(UUID.fromString(workflowIds.head))
 
     clientProbe.send(actorUnderTest, ThawCarbonitedMetadata(rootWorkflowId))
     serviceRegistryActor.expectMsg(GetRootAndSubworkflowLabels(rootWorkflowId))
-    serviceRegistryActor.send(actorUnderTest, RootAndSubworkflowLabelsLookupResponse(rootWorkflowId, labels))
+    serviceRegistryActor.send(actorUnderTest, RootAndSubworkflowLabelsLookupResponse(rootWorkflowId, labelsForUpdate))
 
     val metadataWithSubworkflows = Source.fromInputStream(Thread.currentThread.getContextClassLoader.getResourceAsStream("metadata_with_subworkflows.json")).mkString
+
+    val scope = Scope.newEmptyScope()
+    BuiltinFunctionLoader.getInstance.loadFunctions(Versions.JQ_1_5, scope)
+    val objectMapper = new ObjectMapper()
+
+    def outputBuilder(buf: ArrayBuffer[JsonNode]): Output = (out: JsonNode) => buf.append(out)
+
+    val rootWorkflowJsonNodesBeforeUpdate = new ArrayBuffer[JsonNode]()
+    val beforeUpdateOutput = outputBuilder(rootWorkflowJsonNodesBeforeUpdate)
+
+    val rootWorkflowLabelsQuery = JsonQuery.compile(".labels", Versions.JQ_1_5)
+    val rootWorkflowJsonNodeBeforeUpdate = objectMapper.readTree(metadataWithSubworkflows)
+    rootWorkflowLabelsQuery.apply(scope, rootWorkflowJsonNodeBeforeUpdate, beforeUpdateOutput)
+    rootWorkflowJsonNodesBeforeUpdate.size shouldBe 1
+    rootWorkflowJsonNodesBeforeUpdate.head.size() shouldBe 1
+    val actualRootLabelsBeforeUpdate = rootWorkflowJsonNodesBeforeUpdate.head.fields().asScala.toList map { e => e.getKey -> e.getValue.textValue() } toMap
+    val expectedRootLabelsBeforeUpdate = Map("cromwell-workflow-id" -> ("cromwell-" + rootWorkflowId.toString))
+    actualRootLabelsBeforeUpdate shouldEqual expectedRootLabelsBeforeUpdate
 
     ioActor.expectMsgPF(max = 5.seconds) {
       case command @ IoCommandWithPromise(iocasc: IoContentAsStringCommand, _) if iocasc.file.pathAsString.contains(rootWorkflowId.toString) =>
@@ -102,30 +121,27 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
     }
 
     clientProbe.expectMsgPF(max = 5.seconds) {
-      case ThawCarboniteSucceeded(metadata) =>
-        val objectMapper = new ObjectMapper()
-        val jsonNode = objectMapper.readTree(metadata)
-        val scope = Scope.newEmptyScope()
-        BuiltinFunctionLoader.getInstance.loadFunctions(Versions.JQ_1_5, scope)
+      case ThawCarboniteSucceeded(metadataAfterThawing) =>
+        val rootNodesAfterUpdate = new ArrayBuffer[JsonNode]()
+        val rootOutputAfterUpdate = outputBuilder(rootNodesAfterUpdate)
 
-        val outs = new ArrayBuffer[JsonNode]()
-        val out = new Output {
-          override def emit(out: JsonNode): Unit = outs.append(out)
-        }
+        val jsonNodeAfterUpdate = objectMapper.readTree(metadataAfterThawing)
+        rootWorkflowLabelsQuery.apply(scope, jsonNodeAfterUpdate, rootOutputAfterUpdate)
+        val actualRootLabelsAfterUpdate = rootNodesAfterUpdate.head.fields().asScala.toList map { e => e.getKey -> e.getValue.textValue() } toMap
+        val expectedRootLabelsAfterUpdate = Map(
+          "cromwell-workflow-id" -> ("cromwell-" + rootWorkflowId.toString),
+          "short_id" -> rootWorkflowId.shortString
+        )
 
-        val rootWorkflowLabelsQuery = JsonQuery.compile(".labels|.short_id", Versions.JQ_1_5)
-        rootWorkflowLabelsQuery.apply(scope, jsonNode, out)
-        outs.head.textValue() shouldEqual rootWorkflowId.shortString
+        actualRootLabelsAfterUpdate shouldEqual expectedRootLabelsAfterUpdate
 
-        // mmm, mutable state...
-        outs.clear()
+        val subworkflowNodesAfterUpdate = new ArrayBuffer[JsonNode]()
+        val subworkflowOutputAfterUpdate = outputBuilder(subworkflowNodesAfterUpdate)
+        val subworkflowLabelsQuery = JsonQuery.compile("..|.subWorkflowMetadata? // empty|.labels|.short_id", Versions.JQ_1_5)
+        subworkflowLabelsQuery.apply(scope, jsonNodeAfterUpdate, subworkflowOutputAfterUpdate)
 
-        val subworkflowLabelsQuery = JsonQuery.compile("..|.subWorkflowMetadata?//empty|.labels|.short_id", Versions.JQ_1_5)
-        subworkflowLabelsQuery.apply(scope, jsonNode, out)
-
-        val actual = outs.toList map { _.textValue() }
-        // .tail to skip the root workflow ID at the head of the List
-        val expected = workflowIds.tail map WorkflowId.fromString map { _.shortString }
+        val actual = subworkflowNodesAfterUpdate.toList map { _.textValue() }
+        val expected = subWorkflowIds map { _.shortString }
         actual shouldEqual expected
 
       case ThawCarboniteFailed(reason) => fail(reason)
