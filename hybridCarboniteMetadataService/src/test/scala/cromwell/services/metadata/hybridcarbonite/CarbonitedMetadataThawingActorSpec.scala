@@ -82,9 +82,7 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
       "0571a73e-1485-4b28-9320-e87036685d61",
       "d9ce3320-727f-42f5-a946-e11177ebd7dd")
 
-    val labels: Map[WorkflowId, Map[String, String]] = workflowIds map {
-      id => WorkflowId.fromString(id) -> Map("short_id" -> id.takeWhile(_ != '-'))
-    } toMap
+    val labels: Map[WorkflowId, Map[String, String]] = workflowIds map WorkflowId.fromString map { id => id -> Map("short_id" -> id.shortString) } toMap
 
     val clientProbe = TestProbe()
 
@@ -117,8 +115,7 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
 
         val rootWorkflowLabelsQuery = JsonQuery.compile(".labels|.short_id", Versions.JQ_1_5)
         rootWorkflowLabelsQuery.apply(scope, jsonNode, out)
-        // .head to get only the root workflow ID
-        outs.head.textValue() shouldEqual workflowIds.head.takeWhile(_ != '-')
+        outs.head.textValue() shouldEqual rootWorkflowId.shortString
 
         // mmm, mutable state...
         outs.clear()
@@ -128,7 +125,7 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
 
         val actual = outs.toList map { _.textValue() }
         // .tail to skip the root workflow ID at the head of the List
-        val expected = workflowIds.tail map { _.takeWhile(_ != '-' )}
+        val expected = workflowIds.tail map WorkflowId.fromString map { _.shortString }
         actual shouldEqual expected
 
       case ThawCarboniteFailed(reason) => fail(reason)
