@@ -1,13 +1,11 @@
 package cromwell.util
 
-import JsonEditor._
 import cats.data.NonEmptyList
-import io.circe.{HCursor, Json, ParsingFailure}
-import io.circe.parser._
-import org.scalatest.{FlatSpec, Matchers}
 import cats.syntax.either._
-
-import scala.io.Source
+import cromwell.util.JsonEditor._
+import io.circe.parser._
+import io.circe.{HCursor, Json, ParsingFailure}
+import org.scalatest.{FlatSpec, Matchers}
 
 class JsonEditorSpec extends FlatSpec with Matchers{
   import JsonEditorSpec._
@@ -106,16 +104,6 @@ class JsonEditorSpec extends FlatSpec with Matchers{
     assert(keys_nested2.get.toSet.contains("keepme") === true) // simple nested key "deep" removed
     assert(keys_nested2.get.size === 1) // simple nested key "deep" removed
   }
-
-  it should "update a metadata with subworkflows" in {
-    import io.circe._
-    import io.circe.parser._
-    val doc = parse(metadataWithSubworkflows).getOrElse(Json.Null)
-
-    val updated = updateLabels(doc, Map.empty)
-    System.err.println(updated.printWith(Printer.spaces2))
-  }
-
 }
 
 object JsonEditorSpec {
@@ -615,6 +603,4 @@ object JsonEditorSpec {
                                           |""".stripMargin
 
   val subWorkflowJson: Either[ParsingFailure, Json] = parse(metadataWithSubWorkflowMetadata)
-
-  val metadataWithSubworkflows = Source.fromInputStream(Thread.currentThread.getContextClassLoader.getResourceAsStream("metadata_with_subworkflows.json")).mkString
 }
