@@ -35,7 +35,7 @@ class RootAndSubworkflowLabelsSpec extends FlatSpec with Matchers with ScalaFutu
           database.dataAccess.workflowMetadataSummaryEntries ++= Seq(root, branch, leaf, random)
         } andThen {
           val root = label("root")
-          // val branch = label("branch")
+          // intentionally not labeling the branch as a negative test
           val leaf = label("leaf")
           val random = label("random")
           database.dataAccess.customLabelEntries ++= Seq(root, /* branch, */ leaf, random)
@@ -63,10 +63,10 @@ class RootAndSubworkflowLabelsSpec extends FlatSpec with Matchers with ScalaFutu
 
     it should "query root and subworkflow labels correctly" taggedAs DbmsTest in {
       database.getRootAndSubworkflowLabels("root").
-        futureValue(Timeout(10.seconds)) shouldBe(Map(
+        futureValue(Timeout(10.seconds)) shouldBe Map(
         "root" -> Map("key" -> "root"),
         "leaf" -> Map("key" -> "leaf")
-      ))
+      )
     }
   }
 }

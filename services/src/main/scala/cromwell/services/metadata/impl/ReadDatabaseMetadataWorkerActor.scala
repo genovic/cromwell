@@ -72,8 +72,8 @@ class ReadDatabaseMetadataWorkerActor(metadataReadTimeout: Duration) extends Act
 
   private def queryRootAndSubworkflowLabelsAndRespond(rootWorkflowId: RootWorkflowId): Future[MetadataServiceResponse] = {
 
-    getRootAndSubworkflowLabels(rootWorkflowId) map {
-      labels => RootAndSubworkflowLabelsLookupResponse(rootWorkflowId, labels)
+    getRootAndSubworkflowLabels(rootWorkflowId) map { labels =>
+      RootAndSubworkflowLabelsLookupResponse(rootWorkflowId, labels)
     } recover {
       case t => RootAndSubworkflowLabelsLookupFailed(rootWorkflowId, t)
     }

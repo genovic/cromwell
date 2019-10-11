@@ -101,7 +101,7 @@ class CarbonitedMetadataThawingActorSpec extends TestKitSuite("CarbonitedMetadat
     BuiltinFunctionLoader.getInstance.loadFunctions(Versions.JQ_1_5, scope)
     val objectMapper = new ObjectMapper()
 
-    def outputBuilder(buf: ArrayBuffer[JsonNode]): Output = (out: JsonNode) => buf.append(out)
+    def outputBuilder(buf: ArrayBuffer[JsonNode]): Output = out => buf.append(out)
 
     val rootWorkflowJsonNodesBeforeUpdate = new ArrayBuffer[JsonNode]()
     val beforeUpdateOutput = outputBuilder(rootWorkflowJsonNodesBeforeUpdate)
