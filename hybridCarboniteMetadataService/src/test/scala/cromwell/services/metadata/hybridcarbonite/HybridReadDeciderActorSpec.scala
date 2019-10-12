@@ -35,7 +35,7 @@ class HybridReadDeciderActorSpec extends TestKitSuite("HybridReadDeciderActorSpe
 
     hrda.stateName should be(Pending)
 
-    val incomingQuery = GetLabels(sampleWorkflowId)
+    val incomingQuery = WorkflowOutputs(sampleWorkflowId)
 
     // The HybridReadDeciderActor gets a workflow-specific query and looks up its archive status:
     client.send(hrda, incomingQuery)
@@ -52,7 +52,7 @@ class HybridReadDeciderActorSpec extends TestKitSuite("HybridReadDeciderActorSpe
     // Send a basic response:
     val responseJsonString =
       s"""{
-        |  "labels": [],
+        |  "outputs": {},
         |  "id": "${sampleWorkflowId.toString}"
         |}""".stripMargin
     val responseJson = responseJsonString.parseJson.asJsObject
