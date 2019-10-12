@@ -15,9 +15,9 @@ class HybridReadDeciderActor(classicMetadataServiceActor: ActorRef, carboniteMet
   implicit val ec: ExecutionContext = context.dispatcher
 
   when(Pending) {
-    case Event(labelsOrStatus @ (_: GetLabels | _: GetStatus), NoData) =>
+    case Event(labelsOrStatusQuery @ (_: GetLabels | _: GetStatus), NoData) =>
       // The classicMetadataServiceActor is always the SOA for labels or status data.
-      classicMetadataServiceActor forward labelsOrStatus
+      classicMetadataServiceActor forward labelsOrStatusQuery
       stop(FSM.Normal)
     case Event(read: WorkflowMetadataReadAction, NoData) =>
       classicMetadataServiceActor ! QueryForWorkflowsMatchingParameters(Vector(WorkflowQueryKey.Id.name -> read.workflowId.toString))
